@@ -1,6 +1,7 @@
 import factory
 
-from product.models import Product, Category
+from product.models import Product
+from product.models import Category
 
 # Utilizamos o factory para gerar dados falsos, com propósito de testar
 # a aplicação. Após gerar os dados falsos que preenchem os campos dos
@@ -8,9 +9,9 @@ from product.models import Product, Category
 
 
 class CategoryFactory(factory.django.DjangoModelFactory):
-    title = factory.Faker("pystr")
-    slug = factory.Faker("pystr")
-    description = factory.Faker("pystr")
+    title = factory.Faker('pystr')
+    slug = factory.Faker('pystr')
+    description = factory.Faker('pystr')
     active = factory.Iterator([True, False])
 
     class Meta:
@@ -18,9 +19,9 @@ class CategoryFactory(factory.django.DjangoModelFactory):
 
 
 class ProductFactory(factory.django.DjangoModelFactory):
-    price = factory.Faker("pyint")
+    price = factory.Faker('pystr')
     category = factory.LazyAttribute(CategoryFactory)
-    title = factory.Faker("pystr")
+    title = factory.Faker('pystr')
 
     @factory.post_generation
     def category(self, create, extracted, **kwargs):
