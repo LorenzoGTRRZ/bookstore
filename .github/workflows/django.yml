@@ -1,51 +1,61 @@
-name: Django CI
+name: Django CI # Nome do seu workflow
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main ] # Dispara o workflow em push para a branch main
   pull_request:
-    branches: [ main ]
+    branches: [ main ] # Dispara o workflow em pull request para a branch main
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  test: # Define um job chamado 'test'
+    runs-on: ubuntu-latest # O job será executado em uma máquina virtual Ubuntu
 
     services:
-      postgres:
-        image: postgres:12
+      postgres: # Define um serviço de banco de dados PostgreSQL
+        image: postgres:12 # Imagem Docker do PostgreSQL versão 12
         env:
-          POSTGRES_DB: bookstore
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: bookstore # Nome do banco de dados
+          POSTGRES_USER: postgres # Usuário do banco de dados
+          POSTGRES_PASSWORD: postgres # Senha do banco de dados
         ports:
-          - 5432:5432
-        options: >-
+          - 5432:5432 # Mapeia a porta do PostgreSQL
+        options: >- # Opções de saúde para garantir que o DB esteja pronto
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
 
-    env:
-      DATABASE_URL: postgres://postgres:postgres@localhost:5432/bookstore
+    env: # Variáveis de ambiente globais para os passos do job
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/bookstore # URL de conexão com o DB para o Django
 
-    steps:
-    - name: Checkout code
+    steps: # Passos a serem executados no job
+    - name: Checkout code # Passo para clonar o seu repositório
       uses: actions/checkout@v3
 
-    - name: Set up Python
+    - name: Set up Python # Passo para configurar o ambiente Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.10' # Usa a versão 3.10 do Python (você pode ajustar para 3.12 se preferir)
 
-    - name: Install dependencies
+    - name: Install dependencies # PASSO CORRIGIDO: Instala as dependências usando Poetry
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        # 1. Instale o Poetry no ambiente do CI/CD (o sistema de gerenciamento de pacotes que você usa)
+        python -m pip install poetry
 
-    - name: Run migrations
+        # 2. (Opcional, mas recomendado para consistência) Configure o Poetry para criar o ambiente virtual
+        #    dentro do diretório do projeto, o que ajuda na portabilidade e localização.
+        poetry config virtualenvs.in-project true
+
+        # 3. Instale as dependências do seu projeto usando Poetry.
+        #    'poetry install': Lê o 'poetry.lock' (que garante as versões exatas) e instala as dependências.
+        #    '--no-root': Impede que o Poetry tente instalar seu próprio projeto Django como um pacote Python.
+        #    '--only main': Instala apenas as dependências de produção (exclui as de desenvolvimento, como pytest).
+        poetry install --no-root --only main
+
+    - name: Run migrations # Passo para rodar as migrações do Django
       run: |
         python manage.py migrate
 
-    - name: Run tests
+    - name: Run tests # Passo para rodar os testes do Django
       run: |
         python manage.py test
