@@ -1,0 +1,31 @@
+version: '3.9' # Versão da sintaxe do Docker Compose
+
+services:
+  db:
+    image: postgres:16-alpine # Imagem oficial do PostgreSQL, versão leve
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/ # Volume para persistir os dados do DB
+    environment:
+      # Variáveis de ambiente para o PostgreSQL
+      POSTGRES_DB: bookstore_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432" # Opcional: mapeia a porta do DB para o host para acesso direto
+
+  web:
+    build: . # Constrói a imagem a partir do Dockerfile no diretório atual
+    # Comando para executar ao iniciar o contêiner web: migra e inicia o servidor
+    command: sh -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app # Monta o diretório atual do projeto em /app (ótimo para desenvolvimento)
+    ports:
+      - "8000:8000" # Mapeia a porta 8000 do contêiner para a porta 8000 do host
+    env_file:
+      - ./env.dev # Carrega variáveis de ambiente do arquivo .env.dev
+    depends_on:
+      - db # Garante que o DB inicie antes do serviço web
+    restart: on-failure # Reinicia o contêiner se ele falhar
+
+volumes:
+  postgres_data: # Define o volume persistente para o PostgreSQL
