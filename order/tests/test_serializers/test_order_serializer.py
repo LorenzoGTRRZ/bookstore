@@ -1,4 +1,3 @@
-
 from django.test import TestCase
 
 from order.factories import OrderFactory, ProductFactory
@@ -15,7 +14,8 @@ class TestOrderSerializer(TestCase):
 
     def test_order_serializer(self):
         serializer_data = self.order_serializer.data
-        self.assertEquals(
-            serializer_data["product"][0]["title"], self.product_1.title)
-        self.assertEquals(
-            serializer_data["product"][1]["title"], self.product_2.title)
+        sorted_products = sorted(serializer_data["product"], key=lambda x: x["title"])
+        expected_products = sorted([self.product_1.title, self.product_2.title])
+
+        self.assertEqual(sorted_products[0]["title"], expected_products[0])
+        self.assertEqual(sorted_products[1]["title"], expected_products[1])

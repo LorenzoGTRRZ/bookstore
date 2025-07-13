@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from product.factories import CategoryFactory, ProductFactory
-from product.serializers import ProductSerializer
+from product.serializers.product_serializer import ProductSerializer
 
 
 class TestProductSerializer(TestCase):
@@ -14,7 +14,6 @@ class TestProductSerializer(TestCase):
 
     def test_product_serializer(self):
         serializer_data = self.product_serializer.data
-        self.assertEquals(serializer_data["price"], 100)
-        self.assertEquals(serializer_data["title"], "mouse")
-        self.assertEquals(
-            serializer_data["category"][0]["title"], "technology")
+        self.assertEqual(serializer_data["price"], 100)
+        self.assertEqual(serializer_data["title"], "mouse")
+        self.assertEqual(serializer_data["category"][0]["title"], "technology")
