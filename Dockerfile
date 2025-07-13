@@ -1,56 +1,39 @@
-# Estágio 1: Build das dependências
-FROM python:3.12.1-slim as builder
+FROM python:3.12.1-slim AS python-base
 
-# Define variáveis de ambiente para o Poetry
-ENV POETRY_HOME="/opt/poetry" \
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=off \
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PIP_DEFAULT_TIMEOUT=100 \
+    POETRY_HOME="/opt/poetry" \
     POETRY_VIRTUALENVS_IN_PROJECT=true \
     POETRY_NO_INTERACTION=1 \
-    PATH="$POETRY_HOME/bin:$PATH" 
-# Instala dependências de sistema necessárias
-# Inclui git, build-essential, libpq-dev, gcc para compilação de psycopg2
-RUN apt-get update && apt-get install --no-install-recommends -y \
+    PYSETUP_PATH="/opt/pysetup" \
+    VENV_PATH="/opt/pysetup/.venv"
+
+ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
+
+# Instala dependências de sistema
+RUN apt-get update \
+  && apt-get install --no-install-recommends -y \
     curl \
     build-essential \
     libpq-dev \
-    gcc \
-    git \
-    && rm -rf /var/lib/apt/lists/*
+    gcc
 
-# Instala o Poetry usando pip
-RUN pip install poetry
+# Instala poetry e psycopg2
+RUN pip install poetry psycopg2
 
-# Instala o psycopg2-binary diretamente (melhor para Docker)
-RUN pip install psycopg2-binary
-
-# Define o diretório de trabalho para as operações do Poetry
-WORKDIR /opt/pysetup
-
-# Copia apenas os arquivos de definição de dependências (para cache do Docker)
-COPY poetry.lock pyproject.toml ./
-
-# Instala as dependências do projeto (apenas produção e sem instalar o projeto raiz)
+# Instala as dependências Python
+WORKDIR $PYSETUP_PATH
+COPY poetry.lock pyproject.toml README.md ./
 RUN poetry install --only main --no-root
 
-# Estágio 2: Cria a imagem final, mais leve
-FROM python:3.12.1-slim
-
-# Define variáveis de ambiente para o ambiente virtual copiado
-ENV VIRTUAL_ENV="/opt/pysetup/.venv" \
-    PATH="/opt/pysetup/.venv/bin:$PATH" \
-    PYTHONUNBUFFERED=1 
-
-# Copia o ambiente virtual do estágio de construção
-COPY --from=builder /opt/pysetup/.venv /opt/pysetup/.venv
-
-# Define o diretório de trabalho para o código da aplicação
+# Copia código do app
 WORKDIR /app
-
-# Copia todo o código da sua aplicação para o contêiner
 COPY . /app/
 
-# Expõe a porta 8000, onde o Django vai escutar
 EXPOSE 8000
 
-# Comando para rodar migrações do banco de dados e iniciar o servidor Django
-# Em produção, você usaria um servidor WSGI (Gunicorn/uWSGI) e migraria separadamente.
-CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"]
+# Roda o servidor com o ambiente virtual criado pelo poetry
+CMD ["poetry", "run", "python", "manage.py", "runserver", "0.0.0.0:8000"]

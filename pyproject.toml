@@ -2,8 +2,9 @@
 name = "bookstore"
 version = "0.1.0"
 description = "Bookstore API"
-authors = ["Lorenzo"]
-
+authors = ["hsanfilippo <henrique.sanfilippo@gmail.com>"]
+readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -15,8 +16,6 @@ black = "^24.8.0"
 django-extensions = "^3.2.3"
 django-debug-toolbar = "^4.4.6"
 psycopg2-binary = "^2.9.9"
-dj-database-url = "^3.0.1"
-drf-spectacular = "^0.28.0"
 
 
 [build-system]
