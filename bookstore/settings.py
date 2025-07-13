@@ -12,8 +12,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 
-from django.conf.global_settings import STATIC_ROOT, STATICFILES_STORAGE
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,13 +19,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'hsanf-bookstore-65340172de3d.herokuapp.com', 'hsanfilippo.pythonanywhere.com']
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-m%=26holc-iet+l5c=i_qcp47i=_vqd9udg&xldh0z@5tz7xe+"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+ALLOWED_HOSTS = []
+
 
 # Application definition
 
@@ -48,7 +47,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -63,7 +61,7 @@ ROOT_URLCONF = "bookstore.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "bookstore", "templates")],
+        "DIRS": [],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -78,9 +76,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "bookstore.wsgi.application"
 
-STATIC_ROOT = BASE_DIR / "staticfiles"
-
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -152,8 +147,8 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-# SECRET_KEY = os.environ.get("SECRET_KEY")
-#
-# DEBUG = int(os.environ.get("DEBUG", default=0))
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
+DEBUG = int(os.environ.get("DEBUG", default=0))
 
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
