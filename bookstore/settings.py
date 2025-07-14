@@ -30,7 +30,7 @@ ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     "0.0.0.0",
-    "rhnrod.pythonanywhere.com"
+    "LorenzoG2.pythonanywhere.com"
 ]
 # Application definition
 
