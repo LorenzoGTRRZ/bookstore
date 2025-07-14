@@ -1,31 +1,20 @@
-"""
-URL configuration for bookstore project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-import debug_toolbar
-from bookstore import views
+# bookstore/urls.py
 from django.contrib import admin
 from django.urls import include, path, re_path
+from rest_framework import routers
 from rest_framework.authtoken.views import obtain_auth_token
 
+# Importe as novas views
+from bookstore import views as bookstore_views # Importe sua views.py
+
 urlpatterns = [
-    path("__debug__", include("debug_toolbar.urls")),
+    path("__debug__/", include("debug_toolbar.urls")), # Certifique-se de que está comentado ou removido para produção
     path("admin/", admin.site.urls),
     re_path("bookstore/(?P<version>(v1|v2))/", include("order.urls")),
     re_path("bookstore/(?P<version>(v1|v2))/", include("product.urls")),
     path("api-token-auth/", obtain_auth_token, name="api-token-auth"),
-    path("update_server/", views.update, name="update"),
-    path("hello/", views.hello_world, name="hello_world"),
+
+    # NOVAS ROTAS PARA O EXERCÍCIO DE DEPLOY AUTOMÁTICO:
+   path("update_server/", bookstore_views.update, name="update_server"),  # Para o webhook
+    path("hello/", bookstore_views.hello_world, name="hello_world"), # Para a página de sucesso
 ]
