@@ -120,11 +120,3 @@ format-autopep8:
 .PHONY: format-isort
 format-isort:
 	$(RUN_PYPKG_BIN) isort --recursive .
-
-.PHONY: migrate
-migrate:
-	docker-compose exec web python manage.py migrate --noinput
-
-.PHONY: seed
-seed:
-	poetry run python manage.py seed

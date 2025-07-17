@@ -1,6 +1,6 @@
 import factory
 
-from product.models import Product, Category
+from product.models import Category, Product
 
 
 class CategoryFactory(factory.django.DjangoModelFactory):
@@ -14,9 +14,8 @@ class CategoryFactory(factory.django.DjangoModelFactory):
 
 
 class ProductFactory(factory.django.DjangoModelFactory):
-    id = factory.Faker("pyint")
     price = factory.Faker("pyint")
-    category = factory.LazyAttribute(CategoryFactory)
+    category = factory.SubFactory(CategoryFactory)
     title = factory.Faker("pystr")
 
     @factory.post_generation
@@ -27,6 +26,8 @@ class ProductFactory(factory.django.DjangoModelFactory):
         if extracted:
             for category in extracted:
                 self.category.add(category)
+            self.save()
 
     class Meta:
         model = Product
+        skip_postgeneration_save = True
